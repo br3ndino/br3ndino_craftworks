@@ -1,8 +1,116 @@
 local lib = exports.ox_lib
 local QBCore = exports['qb-core']:GetCoreObject()
 
+local cottonPlants = {}
+local harvesting = false
+
+-- Function to spawn cotton plants
+function spawnCottonPlant(x, y, z)
+    local cottonModel = `prop_plant_fern_02a` -- Change to an appropriate cotton plant model
+    RequestModel(cottonModel)
+    while not HasModelLoaded(cottonModel) do Wait(100) end
+
+    local cottonPlant = CreateObject(cottonModel, x, y, z, true, true, false)
+    SetEntityInvincible(cottonPlant, true)
+    FreezeEntityPosition(cottonPlant, true)
+
+    exports['qb-target']:AddTargetEntity(cottonPlant, {
+        options = {
+            {
+                event = 'textile:startCottonHarvest',
+                icon = 'fas fa-hand-paper',
+                label = 'Harvest Cotton',
+                action = function(entity)
+                    TriggerEvent('textile:startCottonHarvest', cottonPlant)
+                end,
+            },
+        },
+        distance = 2.0,
+    })
+
+    table.insert(cottonPlants, cottonPlant)
+end
+
+-- Spawn cotton plants from Config
+Citizen.CreateThread(function()
+    if Config and Config.CottonSpawnLocations then
+        for _, point in pairs(Config.CottonSpawnLocations) do
+            spawnCottonPlant(point.x, point.y, point.z)
+        end
+    else
+        print("Config.CottonSpawnLocations is missing or empty!")
+    end
+end)
+
+-- Function to handle harvesting loop
+function StartHarvestingLoop(cottonPlant)
+    Citizen.CreateThread(function()
+        while harvesting do
+            local playerPed = PlayerPedId()
+            local playerCoords = GetEntityCoords(playerPed)
+            local plantCoords = GetEntityCoords(cottonPlant)
+            local dist = #(playerCoords - plantCoords)
+
+            print("Distance to cotton plant:", dist)
+            print("Harvesting flag:", harvesting)
+
+            -- Stop if player moves too far
+            if dist > 3.0 then
+                TriggerEvent("QBCore:Notify", "You moved too far from the cotton plant!", "error")
+                harvesting = false
+                return
+            end
+
+            -- Start progress bar
+            exports['progressbar']:Progress({
+                name = "harvest_cotton",
+                duration = 5000,
+                label = "Harvesting Cotton...",
+                useWhileDead = false,
+                canCancel = true,
+                controlDisables = {disableMovement = true, disableCarMovement = true, disableMouse = true, disableCombat = true},
+                animation = {dict = "amb@world_human_gardener_plant@male@idle_a", clip = "idle_a"},
+                onCancel = function()
+                    harvesting = false
+                    TriggerEvent("QBCore:Notify", "Cotton Harvesting Canceled", "error")
+                end
+            })
+
+            Citizen.Wait(5000) -- Wait for progress bar duration
+
+            -- Check if still harvesting
+            if harvesting then
+                print("Cotton event triggered")
+                TriggerServerEvent('textile:addCotton') -- Give cotton
+                Citizen.Wait(2000) -- Short delay
+            end
+        end
+    end)
+end
+
+-- Event to start harvesting
+RegisterNetEvent('textile:startCottonHarvest')
+AddEventHandler('textile:startCottonHarvest', function(cottonPlant)
+    if harvesting then
+        TriggerEvent("QBCore:Notify", "You are already harvesting!", "error")
+        return
+    end
+
+    local playerPed = PlayerPedId()
+    local dist = #(GetEntityCoords(playerPed) - GetEntityCoords(cottonPlant))
+
+    if dist > 3.0 then
+        TriggerEvent("QBCore:Notify", "You are too far from the cotton plant!", "error")
+        return
+    end
+
+    harvesting = true
+    StartHarvestingLoop(cottonPlant)
+end)
+
+
 -- Crafting location (textile crafting area)
-local craftingLocation = Config.TextileLocation
+local craftingLocation = Config.TextileCraftLocation
 
 -- Create the crafting location with qb-target
 Citizen.CreateThread(function()

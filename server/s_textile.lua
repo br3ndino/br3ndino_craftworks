@@ -1,5 +1,19 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 
+-- Server-side event to add cotton
+RegisterNetEvent('textile:addCotton')
+AddEventHandler('textile:addCotton', function()
+    print("Add cotton triggered.")
+    local src = source
+    local Player = QBCore.Functions.GetPlayer(src)
+    if Player then
+        Player.Functions.AddItem("cotton", 1) 
+        TriggerClientEvent("inventory:client:ItemBox", src, QBCore.Shared.Items["cotton"], "add")
+        TriggerClientEvent("QBCore:Notify", src, "You harvested 1 cotton!", "success")
+    end
+end)
+
+
 RegisterNetEvent("textile:startCrafting")
 AddEventHandler("textile:startCrafting", function(cottonRequired, itemToCraft)
     local player = QBCore.Functions.GetPlayer(source)
