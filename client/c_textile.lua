@@ -69,7 +69,7 @@ function StartHarvestingLoop(cottonPlant)
                 useWhileDead = false,
                 canCancel = true,
                 controlDisables = {disableMovement = true, disableCarMovement = true, disableMouse = true, disableCombat = true},
-                animation = {dict = "amb@world_human_gardener_plant@male@idle_a", clip = "idle_a"},
+                animation = {animDict = "amb@world_human_gardener_plant@male@idle_a", anim = "idle_a"},
                 onCancel = function()
                     harvesting = false
                     TriggerEvent("QBCore:Notify", "Cotton Harvesting Canceled", "error")
