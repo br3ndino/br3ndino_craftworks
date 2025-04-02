@@ -12,12 +12,13 @@ Config.CottonSpawnLocations = {
 }
 
 --CHEESEMAKING CONFIG
-Config.CowSpawnLoctions = {
+Config.CowSpawnLocations = {
     vector3(2386.3560, 5054.5181, 45.4446),
     vector3(2382.2139, 5049.9624, 45.4350),
     vector3(2374.6006, 5048.5874, 45.4446),
     vector3(2372.4551, 5055.9966, 45.4428),
 }
+Config.CheeseCraftLocation = vector3(2383.6313, 5032.2920, 45.8838)
 Config.CheeseRecipes = {
     ["Mozzarella"] = {
         description = "A soft and stretchy cheese",

@@ -76,11 +76,11 @@ AddEventHandler("cheese:startCrafting", function(milkRequired, itemToCraft)
         return
     end
 
-    -- Check if the player has enough cotton
+    -- Check if the player has enough milk
     local milkItem = player.Functions.GetItemByName("milk")
     local milkCount = milkItem and milkItem.amount or 0
 
-    -- Check if the player has enough cotton to craft
+    -- Check if the player has enough milk to craft
     if milkCount >= milkRequired then
         -- Trigger the crafting progress bar on client
         TriggerClientEvent("cheese:showCraftingProgress", source)
@@ -88,7 +88,7 @@ AddEventHandler("cheese:startCrafting", function(milkRequired, itemToCraft)
         -- Wait for the duration of the crafting process
         Citizen.Wait(15000)  -- Adjust the wait time to match the progress bar duration
 
-        -- Remove the required amount of cotton and add the crafted item
+        -- Remove the required amount of milk and add the crafted item
         player.Functions.RemoveItem("milk", milkRequired)
         player.Functions.AddItem(itemToCraft, 1)
 

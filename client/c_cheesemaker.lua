@@ -1,5 +1,8 @@
+local lib = exports.ox_lib
+local QBCore = exports['qb-core']:GetCoreObject()
 local cows = {}
-local harvesting = false
+local milkHarvesting = false
+local milkHarvestingEntity = nil
 
 -- Function to spawn cows
 function spawnCow(x, y, z)
@@ -24,8 +27,8 @@ function spawnCow(x, y, z)
         },
         distance = 2.0,
     })
-z
     table.insert(cows, cow)
+    name = "milk_cow_" .. cow -- Unique ID
 end
 
 -- Spawn cows at preset locations
@@ -40,25 +43,22 @@ Citizen.CreateThread(function()
 end)
 
 -- Function to handle harvesting loop
-function StartHarvestingLoop(cow)
+function MilkHarvestingLoop(cow)
     Citizen.CreateThread(function()
-        while harvesting do
+        while isHarvestingMilk do
             local playerPed = PlayerPedId()
             local playerCoords = GetEntityCoords(playerPed)
             local cowCoords = GetEntityCoords(cow)
             local dist = #(playerCoords - cowCoords)
 
-            print("Distance to cow:", dist)
-            print("Harvesting flag:", harvesting)
-
             -- Stop if player moves too far
             if dist > 3.0 then
                 TriggerEvent("QBCore:Notify", "You moved too far from the cow!", "error")
-                harvesting = false
+                isHarvestingMilk = false
                 return
             end
 
-            -- Start progress bar (no return check, assume it runs)
+            -- Start progress bar
             exports['progressbar']:Progress({
                 name = "harvest_milk",
                 duration = 5000,
@@ -68,7 +68,7 @@ function StartHarvestingLoop(cow)
                 controlDisables = {disableMovement = true, disableCarMovement = true, disableMouse = true, disableCombat = true},
                 animation = {dict = "amb@world_human_bum_wash@male@idle_a", clip = "idle_a"},
                 onCancel = function()
-                    harvesting = false
+                    isHarvestingMilk = false
                     TriggerEvent("QBCore:Notify", "Milk Harvesting Canceled", "error")
                 end
             })
@@ -76,7 +76,7 @@ function StartHarvestingLoop(cow)
             Citizen.Wait(5000) -- Wait for progress bar duration
 
             -- Check if still harvesting
-            if harvesting then
+            if isHarvestingMilk then
                 print("Milk event triggered")
                 TriggerServerEvent('cheese:addMilk') -- Give milk
                 Citizen.Wait(2000) -- Short delay
@@ -85,11 +85,11 @@ function StartHarvestingLoop(cow)
     end)
 end
 
--- Event to start harvesting
+-- Event to start milk harvesting
 RegisterNetEvent('cheese:startMilkHarvest')
 AddEventHandler('cheese:startMilkHarvest', function(cow)
-    if harvesting then
-        TriggerEvent("QBCore:Notify", "You are already harvesting!", "error")
+    if isHarvestingMilk then
+        TriggerEvent("QBCore:Notify", "You are already harvesting milk!", "error")
         return
     end
 
@@ -101,19 +101,27 @@ AddEventHandler('cheese:startMilkHarvest', function(cow)
         return
     end
 
-    harvesting = true
-    StartHarvestingLoop(cow)
+    isHarvestingMilk = true
+    milkHarvestingEntity = cow  -- Track the cow being milked
+    MilkHarvestingLoop(cow)
+end)
+
+-- Event to stop milk harvesting
+RegisterNetEvent('cheese:stopMilkHarvest')
+AddEventHandler('cheese:stopMilkHarvest', function()
+    isHarvestingMilk = false
+    milkHarvestingEntity = nil
 end)
 
 
 
--- Crafting location (textile crafting area)
-local craftingLocation = Config.CheeseCraftLocation
+-- Crafting location (milk crafting area)
+local cheeseCraftingLocation = Config.CheeseCraftLocation
 
 -- Create the crafting location with qb-target
 Citizen.CreateThread(function()
-    exports['qb-target']:AddBoxZone("CraftingLocation", craftingLocation, 1, 1, {
-        name="CraftingLocation",
+    exports['qb-target']:AddBoxZone("CheeseCrafting", cheeseCraftingLocation, 1, 1, {
+        name="CheeseCraftingLocation",
         heading=0,
         debugPoly=false,
         minZ=29.0,
