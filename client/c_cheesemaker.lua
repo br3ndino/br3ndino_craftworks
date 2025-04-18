@@ -17,7 +17,6 @@ function spawnCow(x, y, z)
     exports['qb-target']:AddTargetEntity(cow, {
         options = {
             {
-                event = 'cheese:startMilkHarvest',
                 icon = 'fas fa-cow',
                 label = 'Harvest Milk',
                 action = function(entity)
@@ -121,11 +120,11 @@ local cheeseCraftingLocation = Config.CheeseCraftLocation
 -- Create the crafting location with qb-target
 Citizen.CreateThread(function()
     exports['qb-target']:AddBoxZone("CheeseCrafting", cheeseCraftingLocation, 1, 1, {
-        name="CheeseCraftingLocation",
+        name="CheeseCrafting",
         heading=0,
         debugPoly=false,
-        minZ=29.0,
-        maxZ=31.0
+        minZ=44.0,
+        maxZ=46.0
     }, {
         options = {
             {
@@ -184,7 +183,7 @@ RegisterNetEvent("cheese:openCraftingMenu", function()
                 title = cheese,
                 description = recipe.description,
                 onSelect = function()
-                    TriggerServerEvent("cheese:startCrafting", recipe.duration, cheese)
+                    TriggerServerEvent("cheese:startCrafting", recipe.ingredients, cheese)
                 end
             })
         end

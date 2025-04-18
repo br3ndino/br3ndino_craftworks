@@ -18,7 +18,6 @@ function spawnCottonPlant(x, y, z)
     exports['qb-target']:AddTargetEntity(cottonPlant, {
         options = {
             {
-                event = 'textile:startCottonHarvest',
                 icon = 'fas fa-hand-paper',
                 label = 'Harvest Cotton',
                 action = function(entity)
@@ -120,7 +119,7 @@ local cottonCraftingLocation = Config.TextileCraftLocation
 -- Create the crafting location with qb-target
 Citizen.CreateThread(function()
     exports['qb-target']:AddBoxZone("CottonCrafting", cottonCraftingLocation, 1, 1, {
-        name="CottonCraftingLocation",
+        name="CottonCrafting",
         heading=0,
         debugPoly=false,
         minZ=29.0,
@@ -266,12 +265,12 @@ RegisterNetEvent("textile:showCraftingProgress", function()
         prop = {},
         propTwo = {}
     }, function(cancelled)
-    if not cancelled then
-        print("Not cancelled")
-    else
-        print("Cancelled")
-    end
-end)
+        if not cancelled then
+            print("Not cancelled")
+        else
+            print("Cancelled")
+        end
+    end)
 end)
 
 

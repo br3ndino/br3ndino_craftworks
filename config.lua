@@ -18,35 +18,35 @@ Config.CowSpawnLocations = {
     vector3(2374.6006, 5048.5874, 45.4446),
     vector3(2372.4551, 5055.9966, 45.4428),
 }
-Config.CheeseCraftLocation = vector3(2383.6313, 5032.2920, 45.8838)
+Config.CheeseCraftLocation = vector3(2393.6641, 5033.2773, 45.3413)
 Config.CheeseRecipes = {
     ["Mozzarella"] = {
-        description = "A soft and stretchy cheese",
+        description = "🧀 A soft and stretchy cheese",
         duration = 5000,
         ingredients = { milk = 5, rennet = 2, salt = 1, cultures = 1, lemon_juice = 2 }
     },
     ["Cheddar"] = {
-        description = "A sharp, flavorful cheese",
+        description = "🧀 A sharp, flavorful cheese",
         duration = 5000,
         ingredients = { milk = 4, butter = 2, rennet = 1, salt = 3, cultures = 2 }
     },
     ["Brie"] = {
-        description = "A soft and creamy cheese",
+        description = "🧀 A soft and creamy cheese",
         duration = 5000,
         ingredients = { milk = 5, butter = 1, rennet = 2, salt = 1, cultures = 3 }
     },
     ["Gouda"] = {
-        description = "A mild and nutty cheese",
+        description = "🧀 A mild and nutty cheese",
         duration = 5000,
         ingredients = { milk = 5, butter = 2, rennet = 2, salt = 2, cultures = 1 }
     },
     ["Ricotta"] = {
-        description = "A light and fluffy cheese",
+        description = "🧀 A light and fluffy cheese",
         duration = 5000,
         ingredients = { milk = 4, butter = 1, salt = 2, lemon_juice = 3 }
     },
     ["Parmesan"] = {
-        description = "A hard, aged cheese",
+        description = "🧀 A hard, aged cheese",
         duration = 5000,
         ingredients = { milk = 5, butter = 2, rennet = 1, salt = 3, cultures = 2 }
     }

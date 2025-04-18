@@ -65,40 +65,33 @@ AddEventHandler('cheese:craftCheese', function()
 end)
 
 RegisterNetEvent("cheese:startCrafting")
-AddEventHandler("cheese:startCrafting", function(milkRequired, itemToCraft)
+AddEventHandler("cheese:startCrafting", function(ingredients, itemToCraft)
     local player = QBCore.Functions.GetPlayer(source)
-
-    -- Debugging: Check if the event is running
-    print("Event triggered for player: ", source)
 
     if not player then
         print("Error: Player not found!")
         return
     end
 
-    -- Check if the player has enough milk
-    local milkItem = player.Functions.GetItemByName("milk")
-    local milkCount = milkItem and milkItem.amount or 0
-
-    -- Check if the player has enough milk to craft
-    if milkCount >= milkRequired then
-        -- Trigger the crafting progress bar on client
-        TriggerClientEvent("cheese:showCraftingProgress", source)
-
-        -- Wait for the duration of the crafting process
-        Citizen.Wait(15000)  -- Adjust the wait time to match the progress bar duration
-
-        -- Remove the required amount of milk and add the crafted item
-        player.Functions.RemoveItem("milk", milkRequired)
-        player.Functions.AddItem(itemToCraft, 1)
-
-        -- Notify the player that the item has been crafted
-        TriggerClientEvent("cheese:itemCrafted", source, itemToCraft)
-
-        -- Debugging: Confirm that the item was crafted
-        print("Crafted item added: " .. itemToCraft)
-    else
-        TriggerClientEvent("QBCore:Notify", source, "Not enough milk to craft " .. itemToCraft, "error")
+    -- Check if player has all required ingredients
+    for ingredient, requiredAmount in pairs(ingredients) do
+        local item = player.Functions.GetItemByName(ingredient)
+        local amount = item and item.amount or 0
+        if amount < requiredAmount then
+            TriggerClientEvent("QBCore:Notify", source, "Not enough " .. ingredient .. " to craft " .. itemToCraft, "error")
+            return
+        end
     end
+
+    -- Show client-side progress
+    TriggerClientEvent("cheese:showCraftingProgress", source)
+    Wait(5000) -- Or use ingredients.duration if needed in future
+
+    -- Remove ingredients and add the crafted item
+    for ingredient, requiredAmount in pairs(ingredients) do
+        player.Functions.RemoveItem(ingredient, requiredAmount)
+    end
+    player.Functions.AddItem(itemToCraft, 1)
+    TriggerClientEvent("cheese:itemCrafted", source, itemToCraft)
 end)
 
