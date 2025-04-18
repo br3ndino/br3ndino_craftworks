@@ -51,3 +51,9 @@ Config.CheeseRecipes = {
         ingredients = { milk = 5, butter = 2, rennet = 1, salt = 3, cultures = 2 }
     }
 }
+
+--CRYSTAL CONFIG
+Config.CrystalSpawnLocations = {
+
+}
+Config.CrystalCraftLocation = 
