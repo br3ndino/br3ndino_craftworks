@@ -1,133 +1,135 @@
 local lib = exports.ox_lib
 local QBCore = exports['qb-core']:GetCoreObject()
-local cottonPlants = {}
-local cottonHarvesting = false
-local cottonHarvestingEntity = nil -- To track the entity being harvested
+local cows = {}
+local milkHarvesting = false
+local milkHarvestingEntity = nil
 
--- Function to spawn cotton plants
-function spawnCottonPlant(x, y, z)
-    local cottonModel = `prop_plant_fern_02a` -- Change to an appropriate cotton plant model
-    RequestModel(cottonModel)
-    while not HasModelLoaded(cottonModel) do Wait(100) end
+-- Function to spawn cows
+function spawnCow(x, y, z)
+    local cowModel = `a_c_cow`
+    RequestModel(cowModel)
+    while not HasModelLoaded(cowModel) do Wait(100) end
 
-    local cottonPlant = CreateObject(cottonModel, x, y, z, true, true, false)
-    SetEntityInvincible(cottonPlant, true)
-    FreezeEntityPosition(cottonPlant, true)
+    local cow = CreatePed(4, cowModel, x, y, z, 0.0, true, false)
+    SetEntityInvincible(cow, true)
+    FreezeEntityPosition(cow, true)
 
-    exports['qb-target']:AddTargetEntity(cottonPlant, {
+    exports['qb-target']:AddTargetEntity(cow, {
         options = {
             {
-                icon = 'fas fa-hand-paper',
-                label = 'Harvest Cotton',
+                icon = 'fas fa-cow',
+                label = 'Harvest Milk',
                 action = function(entity)
-                    TriggerEvent('textile:startCottonHarvest', cottonPlant)
+                    TriggerEvent('cheese:startMilkHarvest', cow)
                 end,
             },
         },
         distance = 2.0,
-        name = "cotton_plant_" .. cottonPlant -- Unique ID
     })
-
-    table.insert(cottonPlants, cottonPlant)
+    table.insert(cows, cow)
+    name = "milk_cow_" .. cow -- Unique ID
 end
 
--- Spawn cotton plants from Config
+-- Spawn cows at preset locations
 Citizen.CreateThread(function()
-    if Config and Config.CottonSpawnLocations then
-        for _, point in pairs(Config.CottonSpawnLocations) do
-            spawnCottonPlant(point.x, point.y, point.z)
+    if Config and Config.CowSpawnLocations then
+        for _, point in pairs(Config.CowSpawnLocations) do
+            spawnCow(point.x, point.y, point.z)
         end
     else
-        print("Config.CottonSpawnLocations is missing or empty!")
+        print("Config.CowSpawnLocations is missing or empty!")
     end
 end)
 
 -- Function to handle harvesting loop
-function CottonHarvestingLoop(cottonPlant)
+function MilkHarvestingLoop(cow)
     Citizen.CreateThread(function()
-        while isHarvestingCotton do
+        while isHarvestingMilk do
             local playerPed = PlayerPedId()
             local playerCoords = GetEntityCoords(playerPed)
-            local plantCoords = GetEntityCoords(cottonPlant)
-            local dist = #(playerCoords - plantCoords)
+            local cowCoords = GetEntityCoords(cow)
+            local dist = #(playerCoords - cowCoords)
 
             -- Stop if player moves too far
             if dist > 3.0 then
-                TriggerEvent("QBCore:Notify", "You moved too far from the cotton plant!", "error")
-                isHarvestingCotton = false
+                TriggerEvent("QBCore:Notify", "You moved too far from the cow!", "error")
+                isHarvestingMilk = false
                 return
             end
 
             -- Start progress bar
             exports['progressbar']:Progress({
-                name = "harvest_cotton",
+                name = "harvest_milk",
                 duration = 5000,
-                label = "Harvesting Cotton...",
+                label = "Harvesting Milk...",
                 useWhileDead = false,
                 canCancel = true,
                 controlDisables = {disableMovement = true, disableCarMovement = true, disableMouse = true, disableCombat = true},
-                animation = {animDict = "amb@world_human_gardener_plant@male@idle_a", anim = "idle_a"},
+                animation = {dict = "amb@world_human_bum_wash@male@idle_a", clip = "idle_a"},
                 onCancel = function()
-                    isHarvestingCotton = false
-                    TriggerEvent("QBCore:Notify", "Cotton Harvesting Canceled", "error")
+                    isHarvestingMilk = false
+                    TriggerEvent("QBCore:Notify", "Milk Harvesting Canceled", "error")
                 end
             })
 
             Citizen.Wait(5000) -- Wait for progress bar duration
 
             -- Check if still harvesting
-            if isHarvestingCotton then
-                print("Cotton event triggered")
-                TriggerServerEvent('textile:addCotton') -- Give cotton
+            if isHarvestingMilk then
+                print("Milk event triggered")
+                TriggerServerEvent('cheese:addMilk') -- Give milk
                 Citizen.Wait(2000) -- Short delay
             end
         end
     end)
 end
 
--- Event to start harvesting
-RegisterNetEvent('textile:startCottonHarvest')
-AddEventHandler('textile:startCottonHarvest', function(cottonPlant)
-    if isHarvestingCotton then
-        TriggerEvent("QBCore:Notify", "You are already harvesting cotton!", "error")
+-- Event to start milk harvesting
+RegisterNetEvent('cheese:startMilkHarvest')
+AddEventHandler('cheese:startMilkHarvest', function(cow)
+    if isHarvestingMilk then
+        TriggerEvent("QBCore:Notify", "You are already harvesting milk!", "error")
         return
     end
 
     local playerPed = PlayerPedId()
-    local dist = #(GetEntityCoords(playerPed) - GetEntityCoords(cottonPlant))
+    local dist = #(GetEntityCoords(playerPed) - GetEntityCoords(cow))
 
     if dist > 3.0 then
-        TriggerEvent("QBCore:Notify", "You are too far from the cotton plant!", "error")
+        TriggerEvent("QBCore:Notify", "You are too far from the cow!", "error")
         return
     end
 
-    isHarvestingCotton = true
-    cottonHarvestingEntity = cottonPlant  -- Track the cotton plant being harvested
-    CottonHarvestingLoop(cottonPlant)
+    isHarvestingMilk = true
+    milkHarvestingEntity = cow  -- Track the cow being milked
+    MilkHarvestingLoop(cow)
 end)
 
-RegisterNetEvent('textile:stopCottonHarvest')
-AddEventHandler('textile:stopCottonHarvest', function()
-    isHarvestingCotton = false
-    cottonHarvestingEntity = nil
+-- Event to stop milk harvesting
+RegisterNetEvent('cheese:stopMilkHarvest')
+AddEventHandler('cheese:stopMilkHarvest', function()
+    isHarvestingMilk = false
+    milkHarvestingEntity = nil
 end)
 
--- Crafting location (textile crafting area)
-local cottonCraftingLocation = Config.TextileCraftLocation
+
+
+-- Crafting location (milk crafting area)
+local cheeseCraftingLocation = Config.CheeseCraftLocation
 
 -- Create the crafting location with qb-target
 Citizen.CreateThread(function()
-    exports['qb-target']:AddBoxZone("CottonCrafting", cottonCraftingLocation, 1, 1, {
-        name="CottonCrafting",
+    exports['qb-target']:AddBoxZone("CheeseCrafting", cheeseCraftingLocation, 1, 1, {
+        name="CheeseCrafting",
         heading=0,
         debugPoly=false,
-        minZ=29.0,
-        maxZ=31.0
+        minZ=44.0,
+        maxZ=46.0
     }, {
         options = {
             {
                 type = "client",
-                event = "textile:openCraftingMenu",
+                event = "cheese:openCraftingMenu",
                 icon = "fas fa-cogs",
                 label = "Open Crafting Menu"
             }
@@ -136,119 +138,79 @@ Citizen.CreateThread(function()
     })
 end)
 
-RegisterNetEvent("textile:openCraftingMenu", function()
-    local cottonCount = 0
-
-    -- Access player data
+RegisterNetEvent("cheese:openCraftingMenu", function()
+    -- Get player inventory
     local playerData = QBCore.Functions.GetPlayerData()
+    local inventory = playerData and playerData.items or {}
 
-    -- Debug: Print out the entire inventory data
-    print("Player Data: " .. json.encode(playerData))
+    -- Ingredient counters
+    local ingredientCounts = {
+        milk = 0,
+        butter = 0,
+        rennet = 0,
+        salt = 0,
+        cultures = 0,
+        lemon_juice = 0
+    }
 
-    -- Check if cotton item exists in inventory
-    if playerData and playerData.items then
-        -- Loop through the items to find cotton
-        for _, item in pairs(playerData.items) do
-            if item.name == "cotton" then
-                cottonCount = item.amount or 0
-                break
-            end
+    -- Loop through inventory to count each ingredient
+    for _, item in pairs(inventory) do
+        if ingredientCounts[item.name] then
+            ingredientCounts[item.name] = item.amount or 0
         end
     end
 
-    -- Debug: Log the cotton count
-    print("Cotton Count: " .. cottonCount)
+    -- Debugging: Print ingredient counts
+    print("Ingredient Counts: " .. json.encode(ingredientCounts))
 
-    -- Check if the player has enough cotton to craft
-    if cottonCount >= 3 then
-        -- Define the crafting options for the context menu
-        local options = {
-            {
-                title = "🧦 Socks",
-                description = "Requires 5 Cotton",
-                onSelect = function()
-                    TriggerServerEvent("textile:startCrafting", 5, "sock")
-                end
-            },
-            {
-                title = "👕 Shirt",
-                description = "Requires 10 Cotton",
-                onSelect = function()
-                    TriggerServerEvent("textile:startCrafting", 10, "shirt")
-                end
-            },
-            {
-                title = "👖 Pants",
-                description = "Requires 15 Cotton",
-                onSelect = function()
-                    TriggerServerEvent("textile:startCrafting", 15, "pants")
-                end
-            },
-            {
-                title = "👜 Purse",
-                description = "Requires 20 Cotton",
-                onSelect = function()
-                    TriggerServerEvent("textile:startCrafting", 20, "purse")
-                end
-            },
-            {
-                title = "👚 Fake Designer Shirt",
-                description = "Requires 25 Cotton",
-                onSelect = function()
-                    TriggerServerEvent("textile:startCrafting", 25, "fake_shirt")
-                end
-            },
-            {
-                title = "👖 Fake Designer Pants",
-                description = "Requires 30 Cotton",
-                onSelect = function()
-                    TriggerServerEvent("textile:startCrafting", 30, "fake_pants")
-                end
-            },
-            {
-                title = "👛 Fake Designer Purse",
-                description = "Requires 35 Cotton",
-                onSelect = function()
-                    TriggerServerEvent("textile:startCrafting", 35, "fake_purse")
-                end
-            },
-            {
-                title = "👮 Fake Police Uniform",
-                description = "Requires 40 Cotton",
-                onSelect = function()
-                    TriggerServerEvent("textile:startCrafting", 40, "fake_police")
-                end
-            },
-            {
-                title = "🩹 Bandaid",
-                description = "Requires 50 Cotton",
-                onSelect = function()
-                    TriggerServerEvent("textile:startCrafting", 50, "bandage")
-                end
-            },
-        }
+    -- Build crafting menu dynamically based on available ingredients
+    local options = {}
 
-        -- Show the context menu with ox_lib:registerContext
-        exports.ox_lib:registerContext({
-            id = "textile_menu",
-            title = "Textile Crafting",
-            options = options
-        })
+    for cheese, recipe in pairs(Config.CheeseRecipes) do
+        local canCraft = true
 
-        -- Open the context menu
-        exports.ox_lib:showContext("textile_menu")
-    else
-        QBCore.Functions.Notify("You don't have enough cotton!", "error")
+        -- Check if player has enough of each ingredient
+        for ingredient, requiredAmount in pairs(recipe.ingredients) do
+            if ingredientCounts[ingredient] < requiredAmount then
+                canCraft = false
+                break
+            end
+        end
+
+        -- Add to menu if craftable
+        if canCraft then
+            table.insert(options, {
+                title = cheese,
+                description = recipe.description,
+                onSelect = function()
+                    TriggerServerEvent("cheese:startCrafting", recipe.ingredients, cheese)
+                end
+            })
+        end
     end
+
+    -- If no options available, notify and exit
+    if #options == 0 then
+        QBCore.Functions.Notify("You don't have enough ingredients!", "error")
+        return
+    end
+
+    -- Show the context menu
+    exports.ox_lib:registerContext({
+        id = "cheese_menu",
+        title = "Cheese Crafting",
+        options = options
+    })
+    exports.ox_lib:showContext("cheese_menu")
 end)
 
--- Show progress bar on crafting
-RegisterNetEvent("textile:showCraftingProgress", function()
-    print("Progress bar triggered")  -- Debugging line to check if the event is fired
+-- Progress bar event
+RegisterNetEvent("cheese:showCraftingProgress", function()
+    print("Progress bar triggered")  -- Debugging
     exports['progressbar']:Progress({
-        name = "Sewing Cotton",
+        name = "crafting_cheese",
         duration = 5000,
-        label = "Sewing Cotton",
+        label = "Crafting Cheese...",
         useWhileDead = false,
         canCancel = false,
         controlDisables = {
@@ -264,17 +226,15 @@ RegisterNetEvent("textile:showCraftingProgress", function()
         prop = {},
         propTwo = {}
     }, function(cancelled)
-        if not cancelled then
-            print("Not cancelled")
+        if cancelled then
+            print("Crafting Cancelled")
         else
-            print("Cancelled")
+            print("Crafting Complete")
         end
     end)
 end)
 
-
-RegisterNetEvent("textile:itemCrafted", function(itemToCraft)
-    print("Item crafted: " .. itemToCraft)  -- Debugging line to ensure the item is crafted
-    -- Notify the player and update inventory
+RegisterNetEvent("cheese:itemCrafted", function(itemToCraft)
+    print("Item crafted: " .. itemToCraft)
     QBCore.Functions.Notify("You crafted 1 " .. itemToCraft, "success")
 end)

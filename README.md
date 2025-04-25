@@ -25,3 +25,76 @@
 - Chocolate Making
 - Moonshine Making
 - Alchemy/Potion Brewing
+
+
+
+
+
+
+
+
+
+# Minable Items
+- Gold
+- Silver
+- Platinum
+- Amethyst
+- Sapphire
+- Emerald
+
+# Craftable Base Jewelry
+- Gold Chain
+- Gold Ring
+- Gold Bracelet
+- Gold Earrings
+- Silver Chain
+- Silver Ring
+- Silver Bracelet
+- Silver Earrings
+- Platinum Chain
+- Platinum Ring
+- Platinum Bracelet
+- Platinum Earrings
+
+# Craftable Crystals
+- Tumbled Amethyst
+- Tumbled Sapphire
+- Tumbled Emerald
+
+# End Products
+- Gold Amethyst Necklace
+- Gold Amethyst Ring
+- Gold Amethyst Bracelet
+- Gold Amethyst Earrings
+- Silver Amethyst Necklace
+- Silver Amethyst Ring
+- Silver Amethyst Bracelet
+- Silver Amethyst Earrings
+- Platinum Amethyst Necklace
+- Platinum Amethyst Ring
+- Platinum Amethyst Bracelet
+- Platinum Amethyst Earrings
+- Gold Sapphire Necklace
+- Gold Sapphire Ring
+- Gold Sapphire Bracelet
+- Gold Sapphire Earrings
+- Silver Sapphire Necklace
+- Silver Sapphire Ring
+- Silver Sapphire Bracelet
+- Silver Sapphire Earrings
+- Platinum Sapphire Necklace
+- Platinum Sapphire Ring
+- Platinum Sapphire Bracelet
+- Platinum Sapphire Earrings
+- Gold Emerald Necklace
+- Gold Emerald Ring
+- Gold Emerald Bracelet
+- Gold Emerald Earrings
+- Silver Emerald Necklace
+- Silver Emerald Ring
+- Silver Emerald Bracelet
+- Silver Emerald Earrings
+- Platinum Emerald Necklace
+- Platinum Emerald Ring
+- Platinum Emerald Bracelet
+- Platinum Emerald Earrings
