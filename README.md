@@ -1,5 +1,5 @@
 # br3ndino_craftworks
-16 Crafting Side Jobs in 1 Resource
+17 Crafting Side Jobs in 1 Resource
 
 # Install Instructions
 
@@ -24,6 +24,19 @@
 - Chocolate Making
 - Moonshine Making
 - Alchemy/Potion Brewing
+- Forgery Crafting
+
+# Illegal Forgery Items
+- Fake Police Uniform
+- Fake Police Badge
+- Fake Police ID
+- Fake Security ID
+- Forged Documents (generic)
+- Blank Checkbook (bank heist)
+- Fake Company Badge (life invader or gruppe6)
+- Forged Delivery Manifest (dock heist)
+- VIP Access Pass (VU or Tequilala)
+- Restricted Area Access Card (zancudo)
 
 # Minable Items
 - Gold
