@@ -7,7 +7,6 @@
 2. Include pictures in install/pics folder into your qb-inventory imgs folder
 3. Drag and drop
 
-
 # Planned Jobs
 - Textile Crafting ✅
 - Cheese Making ✅
@@ -25,14 +24,6 @@
 - Chocolate Making
 - Moonshine Making
 - Alchemy/Potion Brewing
-
-
-
-
-
-
-
-
 
 # Minable Items
 - Gold
